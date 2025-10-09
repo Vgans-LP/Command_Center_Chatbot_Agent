@@ -248,22 +248,22 @@ It turns out that we can use AgentCore locally if we decide to change our approa
 
 ### What works locally (Python or Docker)
 
-- The entrypoint (@app.entrypoint) and all your code paths
-- Bedrock KB retrieval (it still calls AWS over the network using your local AWS creds)
+- The entrypoint (@app.entrypoint) and all the code paths
+- Bedrock KB retrieval (it still calls AWS over the network using my local AWS creds)
 - LLM generation (Bedrock via Strands, or any external HTTP LLM)
 - Streaming responses (over the local HTTP server)
-- Webhooks (the agent can POST to your URL)
-- Config via env vars (what your code reads with os.getenv)
-- Local testing tools: agentcore launch --local, Docker Desktop, curl/Postman, your Streamlit UI
+- Webhooks (the agent can POST to an URL)
+- Config via env vars (what the code reads with os.getenv)
+- Local testing tools: agentcore launch --local, Docker Desktop, curl/Postman, to either Streamlit UI or a Frontend in general.
 
 ### What is cloud-only (not in local mode)
 
 - Managed HTTPS endpoint (public URL)
-- IAM/OAuth edge authorization (SigV4/OIDC enforced at the gateway)
+- IAM/OAuth edge authorization (SigV4/OIDC enforced at the gateway) --> I need to understand this part.
 - Versioned deployments & DEFAULT endpoint switching
 - Autoscaling / HA (long-running or concurrent sessions at scale)
 - Cloud build & image management (CodeBuild/ECR)
-- Cloud observability (CloudWatch logs/metrics out-of-the-box)
-- Execution role separation (local uses your user creds; cloud uses the task’s IAM role)
-- Header allowlist/gateway behaviors you configured during agentcore configure
+- Cloud observability (CloudWatch logs/metrics out-of-the-box)  ---> Need to see how we can redirect this to Astana, if it is necessary.
+- Execution role separation (local uses the user creds; cloud uses the task’s IAM role)
+- Header allowlist/gateway behaviors we should be able to configure during agentcore configure
 - “Memory” backends managed by the platform (short-term chat context in-process is fine; long-term memory extraction/storage may rely on hosted components)
