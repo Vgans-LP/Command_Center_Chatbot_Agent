@@ -1,0 +1,43 @@
+﻿{
+    "Version":  "2012-10-17",
+    "Statement":  [
+                      {
+                          "Effect":  "Allow",
+                          "Sid":  "AllowKBRead",
+                          "Resource":  [
+                                           "arn:aws:bedrock:eu-central-1:940296632903:knowledge-base/BUJXAPTY21"
+                                       ],
+                          "Action":  [
+                                         "bedrock:Retrieve",
+                                         "bedrock:RetrieveAndGenerate"
+                                     ]
+                      },
+                      {
+                          "Effect":  "Allow",
+                          "Sid":  "AllowInvokeModelForFallback",
+                          "Resource":  "arn:aws:bedrock:eu-central-1::foundation-model/anthropic.claude-sonnet-4-20250514-v1:0",
+                          "Action":  [
+                                         "bedrock:InvokeModel",
+                                         "bedrock:InvokeModelWithResponseStream"
+                                     ]
+                      },
+                      {
+                          "Effect":  "Allow",
+                          "Sid":  "AllowLogs",
+                          "Resource":  "*",
+                          "Action":  [
+                                         "logs:CreateLogGroup",
+                                         "logs:CreateLogStream",
+                                         "logs:PutLogEvents"
+                                     ]
+                      },
+                      {
+                          "Effect":  "Allow",
+                          "Sid":  "AllowReadSSMParams",
+                          "Resource":  "arn:aws:ssm:eu-central-1:940296632903:parameter/940296632903-eu-central-1/kb/*",
+                          "Action":  [
+                                         "ssm:GetParameter"
+                                     ]
+                      }
+                  ]
+}

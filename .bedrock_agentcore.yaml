@@ -1,0 +1,38 @@
+default_agent: kb_agent
+agents:
+  kb_agent:
+    name: kb_agent
+    entrypoint: src/kb_agent.py
+    platform: linux/arm64
+    container_runtime: none
+    aws:
+      execution_role: arn:aws:iam::940296632903:role/AmazonBedrockAgentCoreSDKRuntime-eu-central-1-f1e860203a
+      execution_role_auto_create: false
+      account: '940296632903'
+      region: eu-central-1
+      ecr_repository: 940296632903.dkr.ecr.eu-central-1.amazonaws.com/bedrock-agentcore-kb_agent
+      ecr_auto_create: false
+      network_configuration:
+        network_mode: PUBLIC
+      protocol_configuration:
+        server_protocol: HTTP
+      observability:
+        enabled: true
+    bedrock_agentcore:
+      agent_id: kb_agent-i21PDlFbUQ
+      agent_arn: arn:aws:bedrock-agentcore:eu-central-1:940296632903:runtime/kb_agent-i21PDlFbUQ
+      agent_session_id: null
+    codebuild:
+      project_name: bedrock-agentcore-kb_agent-builder
+      execution_role: arn:aws:iam::940296632903:role/AmazonBedrockAgentCoreSDKCodeBuild-eu-central-1-f1e860203a
+      source_bucket: bedrock-agentcore-codebuild-sources-940296632903-eu-central-1
+    memory:
+      mode: STM_AND_LTM
+      memory_id: kb_agent_mem-pvQOGO2if2
+      memory_arn: arn:aws:bedrock-agentcore:eu-central-1:940296632903:memory/kb_agent_mem-pvQOGO2if2
+      memory_name: kb_agent_mem
+      event_expiry_days: 30
+      first_invoke_memory_check_done: true
+    authorizer_configuration: null
+    request_header_configuration: null
+    oauth_configuration: null

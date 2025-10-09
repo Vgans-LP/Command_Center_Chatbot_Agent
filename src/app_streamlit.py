@@ -12,6 +12,44 @@ except Exception:
     AWS4Auth = None
     boto3 = None
 
+def extract_answer_text(data: dict) -> str:
+    """Return a plain string answer from various response shapes."""
+    # 1) Your agent's usual shape
+    if isinstance(data, dict):
+        if isinstance(data.get("answer"), str):
+            return data["answer"]
+        # Some agents wrap under "result"
+        res = data.get("result")
+        if isinstance(res, dict):
+            if isinstance(res.get("answer"), str):
+                return res["answer"]
+            if isinstance(res.get("message"), str):
+                return res["message"]
+
+        # 2) Anthropic/Strands message shapes
+        # e.g. {'role': 'assistant', 'content': [{'text': '...'}]}
+        if isinstance(data.get("content"), list):
+            for part in data["content"]:
+                if isinstance(part, dict) and isinstance(part.get("text"), str):
+                    return part["text"]
+
+        # e.g. {'message': {'role': 'assistant', 'content': [{'text': '...'}]}}
+        msg = data.get("message")
+        if isinstance(msg, dict) and isinstance(msg.get("content"), list):
+            for part in msg["content"]:
+                if isinstance(part, dict) and isinstance(part.get("text"), str):
+                    return part["text"]
+
+        # 3) Bedrock Messages API shape (sometimes)
+        out = data.get("output")
+        if isinstance(out, dict) and isinstance(out.get("message"), dict):
+            parts = out["message"].get("content", [])
+            for part in parts:
+                if isinstance(part, dict) and isinstance(part.get("text"), str):
+                    return part["text"]
+
+    # Fallback: show raw JSON
+    return json.dumps(data, indent=2)
 
 # ------------------------ UI CONFIG ------------------------
 st.set_page_config(page_title="AgentCore KB Chat", page_icon="🤖", layout="centered")
@@ -42,7 +80,7 @@ with st.sidebar:
     # Auth mode
     auth_mode = st.selectbox("Auth", ["None", "AWS SigV4"])
     aws_service = st.text_input("AWS Service (SigV4)", value=os.getenv("AWS_SERVICE", "execute-api"))
-    aws_region = st.text_input("AWS Region", value=os.getenv("AWS_REGION", "eu-west-3"))
+    aws_region = st.text_input("AWS Region", value=os.getenv("AWS_REGION", "eu-central-1"))
 
     st.caption("Tip: If your endpoint is public and needs no AWS auth, leave Auth=None.")
 
@@ -119,7 +157,7 @@ if user_input:
         st.stop()
 
     # Figure out the shape of the response (your agent typically returns {answer, citations})
-    answer = data.get("answer") or data.get("result", {}).get("answer") or json.dumps(data, indent=2)
+    answer = extract_answer_text(data)
     citations = data.get("citations") or data.get("result", {}).get("citations") or []
 
     with st.chat_message("assistant"):

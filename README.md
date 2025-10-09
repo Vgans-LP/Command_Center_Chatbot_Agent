@@ -1,4 +1,4 @@
-﻿# AgentCore + Strands + Bedrock KB (RAG) Starter Project
+﻿﻿# AgentCore + Strands + Bedrock KB (RAG) Starter Project
 
 This repo is my end-to-end starter for a Strands-first agent that grounds answers on an Amazon Bedrock Knowledge Base (KB) indexed from Amazon S3. I deploy the agent to AgentCore Runtime, and I test it with a tiny Streamlit UI. No MCP tools yet; the agent talks to the KB directly.
 
@@ -74,7 +74,7 @@ pip install -r requirements.txt
 
 ## Environment Variables
 
-Examples live in `.env.example` (Bash) and `.env.ps1.example` (PowerShell).
+Examples live in `.env.example` (Bash).
 
 **Agent / runtime**
 - `AWS_REGION` - Region of KB/S3 (`eu-francfort-1` for now as it is the only available region in Europe for AgentCore)
@@ -92,7 +92,6 @@ Examples live in `.env.example` (Bash) and `.env.ps1.example` (PowerShell).
 - `AGENT_URL` - the runtime invoke URL (or set it in the sidebar)
 - For IAM-protected endpoints from the UI: the machine needs AWS credentials; choose Auth = AWS SigV4 in the sidebar
 
-PowerShell: `. .\.env.ps1` (dot-source)  
 Bash: `source .env`
 
 ## General Informations
@@ -242,3 +241,29 @@ https://strandsagents.com/latest/documentation/docs/
 https://github.com/awslabs/amazon-bedrock-agentcore-samples/tree/main/01-tutorials/07-AgentCore-E2E
 
 - Streamlit
+
+## Additionnal informations
+
+It turns out that we can use AgentCore locally if we decide to change our approach. Below are a list of accessible features on a local setup compared to a cloud setup:
+
+### What works locally (Python or Docker)
+
+- The entrypoint (@app.entrypoint) and all your code paths
+- Bedrock KB retrieval (it still calls AWS over the network using your local AWS creds)
+- LLM generation (Bedrock via Strands, or any external HTTP LLM)
+- Streaming responses (over the local HTTP server)
+- Webhooks (the agent can POST to your URL)
+- Config via env vars (what your code reads with os.getenv)
+- Local testing tools: agentcore launch --local, Docker Desktop, curl/Postman, your Streamlit UI
+
+### What is cloud-only (not in local mode)
+
+- Managed HTTPS endpoint (public URL)
+- IAM/OAuth edge authorization (SigV4/OIDC enforced at the gateway)
+- Versioned deployments & DEFAULT endpoint switching
+- Autoscaling / HA (long-running or concurrent sessions at scale)
+- Cloud build & image management (CodeBuild/ECR)
+- Cloud observability (CloudWatch logs/metrics out-of-the-box)
+- Execution role separation (local uses your user creds; cloud uses the task’s IAM role)
+- Header allowlist/gateway behaviors you configured during agentcore configure
+- “Memory” backends managed by the platform (short-term chat context in-process is fine; long-term memory extraction/storage may rely on hosted components)

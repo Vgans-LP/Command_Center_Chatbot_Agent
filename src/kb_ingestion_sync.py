@@ -9,7 +9,7 @@ from typing import Dict, Any, List
 import boto3
 from botocore.config import Config
 
-REGION = os.getenv("AWS_REGION", os.getenv("AWS_DEFAULT_REGION", "us-west-2"))
+REGION = os.getenv("AWS_REGION", os.getenv("AWS_DEFAULT_REGION", "eu-central-1"))
 USE_SSM = os.getenv("USE_SSM_PARAMS", "1") == "1"
 SSM_PREFIX = os.getenv("SSM_PARAM_PREFIX")  # defaults to /{account}-{region}/kb
 
