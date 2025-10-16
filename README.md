@@ -99,7 +99,6 @@ Bash: `source .env`
 The documents ingestion and Agent Deployment should be done only for the first launch. Once they are in AWS, there is no need to redo the staps as it will be there until deletion. The document sync should be done when updating the bucket to update the KB. Same thing for futur agent updates. 
 For agent updates, once an agent is deployed, it is immutable. The agent default to the last pushed version, but you need to delete by hand the previous version to avoid cost duplicate. 
 
-
 ## Ingesting Documents (S3 -> KB)
 
 Upload docs:
@@ -128,8 +127,8 @@ export DATA_SOURCE_ID=ds-xxxxxxxxxxxxxxxx
 python kb_ingest_sync.py --sync
 ```
 
-Wait for `COMPLETE`. Sync is incremental; only changes are reindexed.  
-Tip: For scanned/image-heavy PDFs that need table/chart extraction, enable the Data Automation parser on the KB data source.
+Wait for `COMPLETE`. Sync is incremental, only changes are reindexed.  
+For scanned/image-heavy PDFs that need table/chart extraction, We need to enable the Data Automation parser on the KB data source. (either BDA parser or Model assisted).
 
 ## Deploying the Agent to AgentCore Runtime
 
@@ -200,6 +199,24 @@ Example payload:
 ## Switching the LLM Provider (Optional)
 
 By default the agent uses Bedrock via Strands. To switch providers, change the Strands model class (e.g., install `strands-agents[openai]`) and control it with environment variables; KB retrieval stays on Bedrock.
+We can also attach a model from Ollama but there is a need to setup the connection part.
+
+## Invoking the Agent
+Below is an example in python of a code snippet that can invoke the agent.
+```
+import boto3, json
+client = boto3.client("bedrock-agentcore", region_name="eu-central-1")
+payload = json.dumps({"input": {"prompt": "Hello"}})
+resp = client.invoke_agent_runtime(
+    agentRuntimeArn="AGENT_ARN",
+    runtimeSessionId="x"*34,
+    payload=payload,
+    qualifier="DEFAULT",
+)
+print(json.loads(resp["response"].read()))
+```
+
+If we need to have a more open way to send the prompt, we could change the payload but I would not recommand it as keeping the current form normalize the way we pass the query.
 
 ## Security & IAM (Quick Notes)
 - Keep KB, S3, and the agent in the same Region for latency/cost.
