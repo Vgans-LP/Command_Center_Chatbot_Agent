@@ -1,4 +1,4 @@
-﻿# AgentCore + Strands + Bedrock KB (RAG) Starter Project
+﻿# AgentCore + Strands + Bedrock KB (RAG) V0
 
 This repo is my end-to-end starter for a Strands-first agent that grounds answers on an Amazon Bedrock Knowledge Base (KB) indexed from Amazon S3. I deploy the agent to AgentCore Runtime, and I test it with a tiny Streamlit UI. No MCP tools yet; the agent talks to the KB directly.
 
